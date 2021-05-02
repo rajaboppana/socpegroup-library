@@ -35,6 +35,11 @@ public class LibraryController {
 	@Autowired
 	@Qualifier("libraryService")
 	private ILibraryService libraryService;
+	
+	/* 
+	 * @Param Multi part file
+	 *
+	 * */
 
 	@PostMapping("/addBooks")
 	public ResponseEntity<?> addBook(@RequestParam("file") MultipartFile multipartFile) throws Exception {
@@ -61,6 +66,11 @@ public class LibraryController {
 		}
 
 	}
+	
+	/* 
+	 * @Param String isbn
+	 *
+	 * */
 
 	@GetMapping("/getBookByIsbn")
 	public ResponseEntity<?> getBookByIsbn(@RequestParam String isbn) {
