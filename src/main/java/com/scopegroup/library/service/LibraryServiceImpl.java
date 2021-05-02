@@ -44,11 +44,10 @@ public class LibraryServiceImpl implements ILibraryService {
 		// save valid books
 		bookSet.removeIf(c -> c.getEmail().isEmpty() || c.getFirstName().isEmpty() || c.getLastName().isEmpty());
 
-		int listIndex = 0;
-
 		for (Book book : bookSet) {
 			libraryRepository.save(book);
 		}
+		//return the book with no mandatory fields with out saving.
 		return faultySet;
 	}
 
