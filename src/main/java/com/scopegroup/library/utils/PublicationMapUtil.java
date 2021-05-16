@@ -13,7 +13,7 @@ import com.scopegroup.library.pojo.Publication;
 /**
  * @author Raja
  *
- * Smartrec test
+ * Scope Group test
  */
 public class PublicationMapUtil {
 	

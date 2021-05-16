@@ -44,7 +44,7 @@ public class LibraryController {
 	 * */
 
 	@PostMapping("/addPublications")
-	public ResponseEntity<?> addBook(@RequestParam("file") MultipartFile multipartFile) throws Exception {
+	public ResponseEntity<?> addPublication(@RequestParam("file") MultipartFile multipartFile) throws Exception {
 
 		Set<Publication> faultyPublication = libraryService.saveFile(multipartFile);
 		Map<String, Set<Publication>> faultySetWithMessage = null;
@@ -59,7 +59,7 @@ public class LibraryController {
 	}
 
 	@GetMapping(path = "/getAllPublications", produces = "application/json")
-	public ResponseEntity<List<Publication>> getAllBooks() throws Exception {
+	public ResponseEntity<List<Publication>> getAllPublications() throws Exception {
 		List<Publication> publications = libraryService.getAllBooks();
 		if (!publications.isEmpty()) {
 			return new ResponseEntity<>(publications, HttpStatus.OK);
@@ -75,7 +75,7 @@ public class LibraryController {
 	 * */
 
 	@GetMapping("/getPublicationByIsbn")
-	public ResponseEntity<Publication> getBookByIsbn(@RequestParam String isbn) {
+	public ResponseEntity<Publication> getPublicationByIsbn(@RequestParam String isbn) {
 		List<Publication> publications = libraryService.getBookByIsbn(isbn);
 		if (!publications.isEmpty()) {
 			return new ResponseEntity<Publication>(publications.get(0), HttpStatus.OK);

@@ -10,7 +10,7 @@ import javax.persistence.Table;
 /**
  * @author Raja
  *
- * Smartrec test
+ * Scope group test
  */
 @Entity
 @Table(name = "author")
