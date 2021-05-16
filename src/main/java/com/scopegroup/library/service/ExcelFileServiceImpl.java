@@ -3,14 +3,18 @@
  */
 package com.scopegroup.library.service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,58 +28,63 @@ import com.scopegroup.library.utils.PublicationMapUtil;
  *
  *         Scope Group test
  */
-
-@Service("csvService")
-public class CsvFileServiceImpl implements IFileService {
+@Service("excelService")
+public class ExcelFileServiceImpl implements IFileService{
 
 	private static final char DEFAULT_SEPARATOR = ',';
 	private static final char DOUBLE_QUOTES = '"';
 	private static final char DEFAULT_QUOTE_CHAR = DOUBLE_QUOTES;
 
-	public Set<Publication> readFile(MultipartFile csvFile) throws Exception {
+	@Override
+	public Set<Publication> readFile(MultipartFile file) {
 
 		int indexLine = 1;
 		int skipLine = 1;
-		List<String> csvLineInArray = null;
 		String[] headerArray = null;
+		List<String> csvLineInArray = null;
 		Map<String, String> arrayObjectMap = new HashMap<String, String>();
-		Set<Publication> publicationSet = new HashSet<Publication>();
+		Set<Publication> publicationSet = new HashSet<>();
+		
+		try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
 
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(csvFile.getInputStream(), "UTF-8"))) {
+			Sheet sheet = workbook.getSheetAt(0);
+			Iterator<Row> rows = sheet.iterator();
 
-			String line;
-			String excludeDoublequotes = null;
-			while ((line = br.readLine()) != null) {
+			while (rows.hasNext()) {
+				Row currentRow = rows.next();
 
-				int textLength = line.length();
+				Cell cellsInRow = currentRow.getCell(0);
+				String cellValue = cellsInRow.getStringCellValue();
 
 				if (indexLine++ <= skipLine) { // first line header array
-					excludeDoublequotes = line.substring(2, textLength - 1);
-					headerArray = excludeDoublequotes.split(",");
+					headerArray = cellValue.split(",");
 					continue;
 				}
-
-				// remove quotes start and end of the string
-				if (textLength >= 2 && line.charAt(0) == '"' && line.charAt(textLength - 1) == '"') { 
-					excludeDoublequotes = line.substring(1, textLength - 1);
-				}
-
+				
 				// add comma at the end of the string for comfortable parsing
-				String addComma = excludeDoublequotes + ",";
+				String addComma = cellValue + ",";
 
-				csvLineInArray = ParseUtil.parse(addComma, DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHAR);
+				try {
+					csvLineInArray = ParseUtil.parse(addComma, DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHAR);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				
 				Set<Author> authors = new HashSet<>();
 
-				for (int i = 0; i < headerArray.length; i++) {
+				for (int i = 0; i < csvLineInArray.size(); i++) {
 					arrayObjectMap.put(headerArray[i], csvLineInArray.get(i));
 				}
-
+				
 				Publication publication = PublicationMapUtil.getPublicationMap(csvLineInArray, headerArray, arrayObjectMap, authors);
 
 				publicationSet.add(publication);
 
 			}
+
+			workbook.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 		return publicationSet;

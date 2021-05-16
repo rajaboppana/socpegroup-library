@@ -8,7 +8,8 @@ import java.util.Set;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.scopegroup.library.pojo.Book;
+import com.scopegroup.library.pojo.Publication;
+import com.scopegroup.library.pojo.PublicationDTO;
 
 /**
  * @author Raja
@@ -17,10 +18,12 @@ import com.scopegroup.library.pojo.Book;
  */
 public interface ILibraryService {
 	
-	public Set<Book> saveFile(MultipartFile file) throws Exception;
+	public Set<Publication> saveFile(MultipartFile file) throws Exception;
 	
-	public List<Book> getAllBooks();
+	public List<Publication> getAllBooks();
 	
-	public List<Book> getBookByIsbn(String isbn); 
+	public List<Publication> getBookByIsbn(String isbn); 
+	
+	public List<PublicationDTO> getPublicationByEmail(String email);
 	
 }

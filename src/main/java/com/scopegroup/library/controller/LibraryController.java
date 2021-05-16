@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.scopegroup.library.pojo.Book;
+import com.scopegroup.library.pojo.Publication;
+import com.scopegroup.library.pojo.PublicationDTO;
 import com.scopegroup.library.service.ILibraryService;
+import com.scopegroup.library.utils.BookNotFoundException;
 
 /**
  * @author Raja
@@ -41,28 +43,28 @@ public class LibraryController {
 	 *
 	 * */
 
-	@PostMapping("/addBooks")
+	@PostMapping("/addPublications")
 	public ResponseEntity<?> addBook(@RequestParam("file") MultipartFile multipartFile) throws Exception {
 
-		Set<Book> faultyBook = libraryService.saveFile(multipartFile);
-		Map<String, Set<Book>> faultySetWithMessage = null;
+		Set<Publication> faultyPublication = libraryService.saveFile(multipartFile);
+		Map<String, Set<Publication>> faultySetWithMessage = null;
 
-		if (faultyBook == null || faultyBook.isEmpty()) {
+		if (faultyPublication == null || faultyPublication.isEmpty()) {
 			return new ResponseEntity<>("Books have been saved successfully", HttpStatus.OK);
 		} else {
-			faultySetWithMessage = new HashMap<String, Set<Book>>();
-			faultySetWithMessage.put("Following are the books with out mandatory fields", faultyBook);
+			faultySetWithMessage = new HashMap<String, Set<Publication>>();
+			faultySetWithMessage.put("Following are the books with out mandatory fields", faultyPublication);
 			return new ResponseEntity<>(faultySetWithMessage, HttpStatus.PARTIAL_CONTENT);
 		}
 	}
 
-	@GetMapping("/getAllBooks")
-	public ResponseEntity<?> getAllBooks() {
-		List<Book> books = libraryService.getAllBooks();
-		if (!books.isEmpty()) {
-			return new ResponseEntity<>(books, HttpStatus.OK);
+	@GetMapping(path = "/getAllPublications", produces = "application/json")
+	public ResponseEntity<List<Publication>> getAllBooks() throws Exception {
+		List<Publication> publications = libraryService.getAllBooks();
+		if (!publications.isEmpty()) {
+			return new ResponseEntity<>(publications, HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>("No Books in the Library", HttpStatus.OK);
+			throw new BookNotFoundException("No books Found");
 		}
 
 	}
@@ -72,13 +74,23 @@ public class LibraryController {
 	 *
 	 * */
 
-	@GetMapping("/getBookByIsbn")
-	public ResponseEntity<?> getBookByIsbn(@RequestParam String isbn) {
-		List<Book> books = libraryService.getBookByIsbn(isbn);
-		if (!books.isEmpty()) {
-			return new ResponseEntity<>(books, HttpStatus.OK);
+	@GetMapping("/getPublicationByIsbn")
+	public ResponseEntity<Publication> getBookByIsbn(@RequestParam String isbn) {
+		List<Publication> publications = libraryService.getBookByIsbn(isbn);
+		if (!publications.isEmpty()) {
+			return new ResponseEntity<Publication>(publications.get(0), HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>("No Book exists with provided ISBN", HttpStatus.OK);
+			throw new BookNotFoundException("Book Not Found with ISBN - "+ isbn);
+		}
+	}
+	
+	@GetMapping("/getPublicationByEmail")
+	public ResponseEntity<List<PublicationDTO>> getPublicationByEmail(@RequestParam String email) {
+		List<PublicationDTO> authors = libraryService.getPublicationByEmail(email);
+		if (!authors.isEmpty()) {
+			return new ResponseEntity<List<PublicationDTO>>(authors, HttpStatus.OK);
+		} else {
+			throw new BookNotFoundException("No Author was found with the email - "+ email);
 		}
 	}
 

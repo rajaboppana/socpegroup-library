@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.scopegroup.library.pojo.Book;
+import com.scopegroup.library.pojo.Publication;
 
 /**
  * @author Raja
@@ -16,6 +16,6 @@ import com.scopegroup.library.pojo.Book;
  */
 public interface IFileService {
 	
-	public Set<Book> readFile(MultipartFile file) throws Exception;
+	public Set<Publication> readFile(MultipartFile file) throws Exception;
 
 }
